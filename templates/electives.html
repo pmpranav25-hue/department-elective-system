@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Select Electives{% endblock %}
+
+{% block hero %}
+<section class="hero hero--compact">
+  <div class="hero__deco" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <span class="hero__eyebrow">Elective enrollment · Step 2 of 2</span>
+    <h1>Pick your electives, {{ student_name.split(' ')[0] }}.</h1>
+    <p class="hero__lede">Select every course you'd like to take this semester, then submit to add them to your record.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="card" id="electives">
+      <div class="card__head">
+        <div class="card__eyebrow">Confirm before you submit</div>
+        <h2>Your details</h2>
+      </div>
+
+      <div class="summary-strip">
+        <div class="summary-item">
+          <span class="label">Register No.</span>
+          <span class="value">{{ register_no }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Name</span>
+          <span class="value">{{ student_name }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Department</span>
+          <span class="value">{{ department }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Semester</span>
+          <span class="value">{{ semester }}</span>
+        </div>
+      </div>
+
+      <form method="POST" action="{{ url_for('submit_selection') }}">
+        <input type="hidden" name="register_no" value="{{ register_no }}">
+        <input type="hidden" name="student_name" value="{{ student_name }}">
+        <input type="hidden" name="department" value="{{ department }}">
+        <input type="hidden" name="semester" value="{{ semester }}">
+
+        <h3 style="font-size:16px; margin-bottom:14px;">Available electives</h3>
+
+        <div class="elective-grid">
+          {% for code, name in electives.items() %}
+          <label class="elective-option">
+            <input type="checkbox" name="electives" value="{{ code }}">
+            <span class="code">{{ code }}</span>
+            <span class="name">{{ name }}</span>
+          </label>
+          {% endfor %}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Submit my selection</button>
+          <a href="{{ url_for('home') }}" class="btn btn-outline">Start over</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

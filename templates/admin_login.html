@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Sign In{% endblock %}
+
+{% block hero %}
+<section class="hero hero--compact">
+  <div class="hero__deco" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <span class="hero__eyebrow">Faculty access</span>
+    <h1>Sign in to the department roster.</h1>
+    <p class="hero__lede">View every submission and export elective confirmation slips.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="card card--narrow">
+      <div class="card__head">
+        <div class="card__eyebrow">Admin</div>
+        <h2>Sign in</h2>
+      </div>
+
+      {% if error %}
+      <div class="field" style="background: var(--danger-bg); color: var(--danger); padding: 12px 15px; border-radius: var(--radius-s); font-size: 14px; font-weight: 600;">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('admin_login') }}">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

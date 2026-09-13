@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Something Needs Your Attention{% endblock %}
+
+{% block hero %}
+<section class="hero hero--compact">
+  <div class="hero__deco" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <span class="hero__eyebrow">Elective enrollment</span>
+    <h1>We couldn't continue.</h1>
+    <p class="hero__lede">Fix the issue below and try again.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="card error-card">
+      <div class="error-glyph">!</div>
+      <h1>{{ message }}</h1>
+      <p>Double check the details you entered, then go back and try again.</p>
+      <div class="form-actions" style="justify-content:center;">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Back to home</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Department Elective Selection — Home{% endblock %}
+
+{% block hero %}
+<section class="hero hero--campus">
+
+  <div class="hero__deco" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+
+    <span class="hero__eyebrow">
+      Elective enrollment · Current semester
+    </span>
+
+    <h1>
+      Choose your electives. Shape your semester.
+    </h1>
+
+    <p class="hero__lede">
+      Enter your student details to view this term's electives and lock in your picks.
+      Your submission goes straight to the department roster.
+    </p>
+
+  </div>
+
+</section>
+{% endblock %}
+
+
+{% block content %}
+
+<section class="section">
+
+  <div class="container">
+
+    <div class="card card--narrow">
+
+      <div class="card__head">
+
+        <div class="card__eyebrow">
+          Step 1 of 2
+        </div>
+
+        <h2>
+          Your student details
+        </h2>
+
+        <p>
+          We'll use this to match your elective picks to your record.
+        </p>
+
+      </div>
+
+
+      <form method="POST" action="{{ url_for('home') }}">
+
+        <div class="field">
+
+          <label for="register_no">
+            Register number
+          </label>
+
+          <input
+            type="text"
+            id="register_no"
+            name="register_no"
+            placeholder="e.g. 21CS0142"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="student_name">
+            Full name
+          </label>
+
+          <input
+            type="text"
+            id="student_name"
+            name="student_name"
+            placeholder="As per college records"
+            required
+          >
+
+        </div>
+
+
+        <div class="field-row">
+
+          <div class="field">
+
+            <label for="department">
+              Department
+            </label>
+
+            <input
+              type="text"
+              id="department"
+              name="department"
+              placeholder="e.g. Computer Science"
+              required
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="semester">
+              Semester
+            </label>
+
+            <input
+              type="text"
+              id="semester"
+              name="semester"
+              placeholder="e.g. 5"
+              required
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Continue to electives
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}

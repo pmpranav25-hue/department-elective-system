@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Roster — Admin Dashboard{% endblock %}
+
+{% block hero %}
+<section class="hero hero--compact hero--campus">
+    <div class="hero__inner">
+        <span class="hero__eyebrow">Faculty access · Roster</span>
+
+        <h1>Every elective submission, in one place.</h1>
+
+        <p class="hero__lede">
+            Review student picks and export confirmation slips as PDF.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<section class="section">
+
+    <div class="container">
+
+        <!-- Statistics -->
+        <div class="stat-row">
+
+            <div class="stat-card">
+                <span class="num">{{ students|length }}</span>
+                <span class="lbl">Total submissions</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="num">
+                    {{ students|map(attribute='department')|unique|list|length }}
+                </span>
+                <span class="lbl">Departments represented</span>
+            </div>
+
+            <div class="stat-card">
+                <span class="num">
+                    {{ students|map(attribute='semester')|unique|list|length }}
+                </span>
+                <span class="lbl">Semesters covered</span>
+            </div>
+
+        </div>
+
+
+        <!-- Toolbar -->
+        <div class="admin-toolbar">
+
+            <h2 style="margin:0;">
+                Student roster
+            </h2>
+
+            <div class="admin-toolbar__actions">
+
+                {% if students %}
+
+                <a href="{{ url_for('generate_all_pdf') }}"
+                   class="btn btn-primary">
+                    Download full report (PDF)
+                </a>
+
+                {% endif %}
+
+                <a href="{{ url_for('admin_logout') }}"
+                   class="btn btn-outline">
+                    Log out
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Student Table -->
+        <div class="table-wrap">
+
+            {% if students %}
+
+            <table class="roster">
+
+                <thead>
+
+                    <tr>
+                        <th>Register No.</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Semester</th>
+                        <th>Electives</th>
+                        <th>Slip</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <td>
+                            <span class="pill-tag">
+                                {{ student['register_no'] }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ student['student_name'] }}
+                        </td>
+
+                        <td>
+                            {{ student['department'] }}
+                        </td>
+
+                        <td>
+                            {{ student['semester'] }}
+                        </td>
+
+                        <td>
+                            {{ student['electives'] }}
+                        </td>
+
+                        <td>
+
+                            <a href="{{ url_for(
+                                'generate_student_pdf',
+                                student_id=student['id']
+                            ) }}"
+                               class="btn btn-outline"
+                               style="padding:8px 16px; font-size:13px;">
+                                Download
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="empty-state">
+
+                <h3>No submissions yet</h3>
+
+                <p>
+                    Once students submit their elective picks,
+                    they'll show up here.
+                </p>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

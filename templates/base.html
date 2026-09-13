@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Department Elective Selection{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <span class="brand__mark">DE</span>
+        <span class="brand__text">Department Elective<br>Selection</span>
+      </a>
+      <nav class="topnav">
+        <a href="{{ url_for('home') }}" class="{{ 'is-active' if request.endpoint == 'home' else '' }}">Home</a>
+        {% if session.get('admin_logged_in') %}
+          <a href="{{ url_for('admin_dashboard') }}" class="{{ 'is-active' if request.endpoint == 'admin_dashboard' else '' }}">Dashboard</a>
+          <a href="{{ url_for('admin_logout') }}" class="admin-pill">Log out</a>
+        {% else %}
+          <a href="{{ url_for('admin_login') }}" class="admin-pill">Admin</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  {% block hero %}{% endblock %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="sitefooter">
+    <div class="sitefooter__inner">
+      <div>
+        <div class="brand">
+          <span class="brand__mark" style="background: linear-gradient(135deg, var(--purple-500), var(--purple-800));">DE</span>
+          <span class="brand__text">Department Elective<br>Selection</span>
+        </div>
+        <p class="muted">Every student submission is recorded against your register number for the current semester's elective round.</p>
+      </div>
+      <div>
+        <h4>Students</h4>
+        <div class="footer-links">
+          <a href="{{ url_for('home') }}">Make a selection</a>
+          <a href="{{ url_for('home') }}#electives">Elective list</a>
+        </div>
+      </div>
+      <div>
+        <h4>Faculty</h4>
+        <div class="footer-links">
+          <a href="{{ url_for('admin_login') }}">Admin sign in</a>
+          {% if session.get('admin_logged_in') %}
+          <a href="{{ url_for('admin_dashboard') }}">Roster &amp; reports</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Department Elective Selection System — for internal academic use only.
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Selection Confirmed{% endblock %}
+
+{% block hero %}
+<section class="hero hero--compact">
+  <div class="hero__deco" aria-hidden="true"></div>
+  <div class="hero__inner">
+    <span class="hero__eyebrow">Elective enrollment · Complete</span>
+    <h1>You're all set, {{ student_name.split(' ')[0] }}.</h1>
+    <p class="hero__lede">Your elective picks have been added to the department roster.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="card card--narrow">
+      <span class="result-badge">Submission recorded</span>
+
+      <div class="summary-strip">
+        <div class="summary-item">
+          <span class="label">Register No.</span>
+          <span class="value">{{ register_no }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Name</span>
+          <span class="value">{{ student_name }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Department</span>
+          <span class="value">{{ department }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Semester</span>
+          <span class="value">{{ semester }}</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; margin-bottom:6px;">Courses you selected</h3>
+      <ul class="course-list">
+        {% for code, name in selected_courses %}
+        <li>
+          <span class="code">{{ code }}</span>
+          <span>{{ name }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div class="form-actions">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Back to home</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
