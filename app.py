@@ -8,8 +8,12 @@ from flask import (
     send_file
 )
 
-import sqlite3
+import os
+from pathlib import Path
 from io import BytesIO
+
+from dotenv import load_dotenv
+from supabase import create_client, Client
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -18,51 +22,50 @@ from reportlab.lib.units import mm
 
 
 # ============================================================
+# LOAD ENVIRONMENT VARIABLES
+# ============================================================
+
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
+
+
+# ============================================================
 # FLASK APPLICATION
 # ============================================================
 
 app = Flask(__name__)
 
-app.secret_key = "department_elective_secret_key"
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "department_elective_secret_key"
+)
 
 
 # ============================================================
-# DATABASE
+# SUPABASE DATABASE
 # ============================================================
 
-DATABASE = "database.db"
+# Load the Supabase Secret key specifically.
+# Do NOT use SUPABASE_KEY here, because an old Windows environment
+# variable with that name may contain the publishable key.
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_SECRET_KEY")
 
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError(
+        "SUPABASE_URL or SUPABASE_SECRET_KEY is missing. Check your .env file."
+    )
 
-def get_db_connection():
+if not SUPABASE_KEY.startswith("sb_secret_"):
+    raise RuntimeError(
+        "SUPABASE_SECRET_KEY must be your Supabase Secret key (starts with sb_secret_)."
+    )
 
-    conn = sqlite3.connect(DATABASE)
+supabase: Client = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY
+)
 
-    conn.row_factory = sqlite3.Row
-
-    return conn
-
-
-def create_database():
-
-    conn = get_db_connection()
-
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS students (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            register_no TEXT NOT NULL,
-            student_name TEXT NOT NULL,
-            department TEXT NOT NULL,
-            semester TEXT NOT NULL,
-            electives TEXT NOT NULL
-        )
-    """)
-
-    conn.commit()
-
-    conn.close()
-
-
-create_database()
+print("Supabase connected using Secret key.")
 
 
 # ============================================================
@@ -181,30 +184,34 @@ def submit_selection():
     )
 
 
-    conn = get_db_connection()
+    # ========================================================
+    # SAVE STUDENT TO SUPABASE
+    # ========================================================
 
+    try:
 
-    conn.execute("""
-        INSERT INTO students (
-            register_no,
-            student_name,
-            department,
-            semester,
-            electives
+        supabase.table("student").insert({
+
+            "register_no": register_no,
+
+            "student_name": student_name,
+
+            "department": department,
+
+            "semester": semester,
+
+            "electives": electives_text
+
+        }).execute()
+
+    except Exception as e:
+
+        print("SUPABASE INSERT ERROR:", e)
+
+        return render_template(
+            "error.html",
+            message="Unable to save student data. Please try again."
         )
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        register_no,
-        student_name,
-        department,
-        semester,
-        electives_text
-    ))
-
-
-    conn.commit()
-
-    conn.close()
 
 
     return render_template(
@@ -231,7 +238,18 @@ def admin_login():
         password = request.form.get("password")
 
 
-        if username == "admin" and password == "admin123":
+        admin_username = os.environ.get(
+            "ADMIN_USERNAME",
+            "admin"
+        )
+
+        admin_password = os.environ.get(
+            "ADMIN_PASSWORD",
+            "admin123"
+        )
+
+
+        if username == admin_username and password == admin_password:
 
             session["admin_logged_in"] = True
 
@@ -263,17 +281,26 @@ def admin_dashboard():
         )
 
 
-    conn = get_db_connection()
+    try:
 
+        response = (
+            supabase
+            .table("student")
+            .select("*")
+            .order("id", desc=True)
+            .execute()
+        )
 
-    students = conn.execute("""
-        SELECT *
-        FROM students
-        ORDER BY id DESC
-    """).fetchall()
+        students = response.data or []
 
+    except Exception as e:
 
-    conn.close()
+        print("SUPABASE SELECT ERROR:", e)
+
+        return render_template(
+            "error.html",
+            message="Unable to load student records."
+        )
 
 
     return render_template(
@@ -317,17 +344,32 @@ def generate_student_pdf(student_id):
         )
 
 
-    conn = get_db_connection()
+    # ========================================================
+    # GET STUDENT FROM SUPABASE
+    # ========================================================
 
+    try:
 
-    student = conn.execute("""
-        SELECT *
-        FROM students
-        WHERE id = ?
-    """, (student_id,)).fetchone()
+        response = (
+            supabase
+            .table("student")
+            .select("*")
+            .eq("id", student_id)
+            .execute()
+        )
 
+        students = response.data or []
 
-    conn.close()
+        student = students[0] if students else None
+
+    except Exception as e:
+
+        print("SUPABASE SELECT ERROR:", e)
+
+        return render_template(
+            "error.html",
+            message="Unable to retrieve student record."
+        )
 
 
     if student is None:
@@ -557,17 +599,31 @@ def generate_all_pdf():
         )
 
 
-    conn = get_db_connection()
+    # ========================================================
+    # GET ALL STUDENTS FROM SUPABASE
+    # ========================================================
 
+    try:
 
-    students = conn.execute("""
-        SELECT *
-        FROM students
-        ORDER BY department, register_no
-    """).fetchall()
+        response = (
+            supabase
+            .table("student")
+            .select("*")
+            .order("department")
+            .order("register_no")
+            .execute()
+        )
 
+        students = response.data or []
 
-    conn.close()
+    except Exception as e:
+
+        print("SUPABASE SELECT ERROR:", e)
+
+        return render_template(
+            "error.html",
+            message="Unable to retrieve student records."
+        )
 
 
     if not students:
